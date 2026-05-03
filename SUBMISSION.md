@@ -286,6 +286,48 @@ MIT License - See LICENSE file for details
 
 ---
 
+## 🐛 Hardest Bug / Engineering Challenge
+
+### The Look-Ahead Bias Bug
+
+**Problem**: During initial backtesting implementation, achieved suspiciously good results (98.7% coverage) due to a subtle indexing error that caused look-ahead bias.
+
+**The Bug**:
+```python
+# WRONG - includes row i in historical data
+historical_data = df.iloc[:i+1].copy()  # Bug: uses future data!
+```
+
+**Diagnosis**:
+1. Noticed coverage was higher than theoretical 95% target
+2. Manually traced through prediction steps
+3. Discovered "last historical timestamp" matched prediction timestamp
+4. Wrote property-based test for temporal integrity - it failed
+
+**The Fix**:
+```python
+# CORRECT - excludes row i from historical data
+historical_data = df.iloc[:i].copy()  # Only uses past data
+current_price = df.iloc[i-1]['close']  # Last known price
+```
+
+**Results After Fix**:
+- Coverage dropped from 98.7% to 92.63% (correct)
+- Average width increased from $687 to $1,030 (realistic)
+- Winkler score increased from 892 to 1,714 (honest)
+
+**Why This Matters**: Look-ahead bias is one of the most dangerous bugs in quantitative finance. It makes strategies appear profitable when they're not, leading to losses in production. Catching this early through rigorous validation saved the project.
+
+**Lessons Learned**:
+- Off-by-one errors are deadly in time series
+- "Too good to be true" results usually are
+- Property-based testing catches bugs unit tests miss
+- Explicit temporal boundaries prevent confusion
+
+**Full Details**: See `HARDEST_BUG.md` for complete analysis
+
+---
+
 **Built with ❤️ for quantitative finance and probabilistic forecasting**
 
 *Submission Date: May 3, 2026*
