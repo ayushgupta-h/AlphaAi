@@ -1,0 +1,117 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitcoin-prediction-api"
+version = "1.0.0"
+description = "Production-ready real-time Bitcoin prediction API service"
+authors = [
+    {name = "Bitcoin Prediction API Team", email = "team@bitcoin-prediction-api.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.urls]
+Homepage = "https://github.com/bitcoin-prediction-api/bitcoin-prediction-api"
+Repository = "https://github.com/bitcoin-prediction-api/bitcoin-prediction-api"
+Documentation = "https://bitcoin-prediction-api.readthedocs.io"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bitcoin_prediction_api*", "bitcoin_forecasting*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["bitcoin_prediction_api", "bitcoin_forecasting"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "motor.*",
+    "redis.*",
+    "hypothesis.*",
+    "streamlit.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["bitcoin_prediction_api"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.hypothesis]
+max_examples = 100
+deadline = 5000  # 5 seconds
+database = ".hypothesis/examples"
+
+[tool.hypothesis.profiles.ci]
+max_examples = 1000
+deadline = 10000  # 10 seconds
+
+[tool.hypothesis.profiles.dev]
+max_examples = 100
+deadline = 5000  # 5 seconds
