@@ -45,9 +45,10 @@ class SupabaseClient:
             try:
                 import streamlit as st
                 if hasattr(st, 'secrets'):
-                    url = st.secrets.get("SUPABASE_URL")
-                    key = st.secrets.get("SUPABASE_KEY")
-            except:
+                    url = st.secrets["SUPABASE_URL"]
+                    key = st.secrets["SUPABASE_KEY"]
+            except Exception as e:
+                logger.debug(f"Could not read Streamlit secrets: {e}")
                 pass
             
             # Fallback to environment variables
