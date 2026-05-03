@@ -44,20 +44,31 @@ class SupabaseClient:
             
             try:
                 import streamlit as st
+                logger.info("Attempting to read Streamlit secrets...")
                 if hasattr(st, 'secrets'):
+                    logger.info("st.secrets is available")
                     url = st.secrets["SUPABASE_URL"]
                     key = st.secrets["SUPABASE_KEY"]
+                    logger.info(f"Successfully read secrets - URL: {url[:30]}..., Key length: {len(key) if key else 0}")
+                else:
+                    logger.warning("st.secrets is not available")
             except Exception as e:
-                logger.debug(f"Could not read Streamlit secrets: {e}")
+                logger.warning(f"Could not read Streamlit secrets: {e}")
                 pass
             
             # Fallback to environment variables
             if not url or not key:
+                logger.info("Trying environment variables...")
                 url = os.getenv("SUPABASE_URL")
                 key = os.getenv("SUPABASE_KEY")
+                if url:
+                    logger.info(f"Found URL in env: {url[:30]}...")
+                if key:
+                    logger.info(f"Found KEY in env, length: {len(key)}")
             
             if not url or not key:
-                logger.info("Supabase credentials not found. Cloud features disabled.")
+                logger.warning("Supabase credentials not found. Cloud features disabled.")
+                logger.warning(f"URL present: {bool(url)}, KEY present: {bool(key)}")
                 return
             
             self.client = create_client(url, key)
